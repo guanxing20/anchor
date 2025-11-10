@@ -1,6 +1,6 @@
 use crate::{
-    config::ProgramWorkspace, create_files, override_or_create_files, solidity_template, Files,
-    PackageManager, VERSION,
+    config::ProgramWorkspace, create_files, override_or_create_files, Files, PackageManager,
+    VERSION,
 };
 use anyhow::Result;
 use clap::{Parser, ValueEnum};
@@ -18,13 +18,15 @@ use std::{
     process::Stdio,
 };
 
+const ANCHOR_MSRV: &str = "1.89.0";
+
 /// Program initialization template
 #[derive(Clone, Debug, Default, Eq, PartialEq, Parser, ValueEnum)]
 pub enum ProgramTemplate {
-    /// Program with a single `lib.rs` file
-    #[default]
+    /// Program with a single `lib.rs` file (not recommended for production)
     Single,
-    /// Program with multiple files for instructions, state...
+    /// Program with multiple files for instructions, state... (recommended)
+    #[default]
     Multiple,
 }
 
@@ -33,6 +35,7 @@ pub fn create_program(name: &str, template: ProgramTemplate, with_mollusk: bool)
     let program_path = Path::new("programs").join(name);
     let common_files = vec![
         ("Cargo.toml".into(), workspace_manifest().into()),
+        ("rust-toolchain.toml".into(), rust_toolchain_toml()),
         (
             program_path.join("Cargo.toml"),
             cargo_toml(name, with_mollusk),
@@ -41,11 +44,26 @@ pub fn create_program(name: &str, template: ProgramTemplate, with_mollusk: bool)
     ];
 
     let template_files = match template {
-        ProgramTemplate::Single => create_program_template_single(name, &program_path),
+        ProgramTemplate::Single => {
+            println!("Note: Using single-file template. For better code organization and maintainability, consider using --template multiple (default).");
+            create_program_template_single(name, &program_path)
+        }
         ProgramTemplate::Multiple => create_program_template_multiple(name, &program_path),
     };
 
     create_files(&[common_files, template_files].concat())
+}
+
+/// Helper to create a rust-toolchain.toml at the workspace root
+fn rust_toolchain_toml() -> String {
+    format!(
+        r#"[toolchain]
+channel = "{msrv}"
+components = ["rustfmt","clippy"]
+profile = "minimal"
+"#,
+        msrv = ANCHOR_MSRV
+    )
 }
 
 /// Create a program with a single `lib.rs` file.
@@ -179,8 +197,7 @@ fn cargo_toml(name: &str, with_mollusk: bool) -> String {
     let dev_dependencies = if with_mollusk {
         r#"
 [dev-dependencies]
-mollusk-svm = "=0.0.15"
-solana-program = "~2.1"
+mollusk-svm = "~0.4"
 "#
     } else {
         ""
@@ -640,7 +657,9 @@ impl TestTemplate {
                 if js {
                     format!("{pkg_manager_exec_cmd} mocha -t 1000000 tests/")
                 } else {
-                    format!("{pkg_manager_exec_cmd} ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts")
+                    format!(
+                        r#"{pkg_manager_exec_cmd} ts-mocha -p ./tsconfig.json -t 1000000 "tests/**/*.ts""#
+                    )
                 }
             }
             Self::Jest => {
@@ -655,13 +674,7 @@ impl TestTemplate {
         }
     }
 
-    pub fn create_test_files(
-        &self,
-        project_name: &str,
-        js: bool,
-        solidity: bool,
-        program_id: &str,
-    ) -> Result<()> {
+    pub fn create_test_files(&self, project_name: &str, js: bool, program_id: &str) -> Result<()> {
         match self {
             Self::Mocha => {
                 // Build the test suite.
@@ -669,18 +682,10 @@ impl TestTemplate {
 
                 if js {
                     let mut test = File::create(format!("tests/{}.js", &project_name))?;
-                    if solidity {
-                        test.write_all(solidity_template::mocha(project_name).as_bytes())?;
-                    } else {
-                        test.write_all(mocha(project_name).as_bytes())?;
-                    }
+                    test.write_all(mocha(project_name).as_bytes())?;
                 } else {
                     let mut mocha = File::create(format!("tests/{}.ts", &project_name))?;
-                    if solidity {
-                        mocha.write_all(solidity_template::ts_mocha(project_name).as_bytes())?;
-                    } else {
-                        mocha.write_all(ts_mocha(project_name).as_bytes())?;
-                    }
+                    mocha.write_all(ts_mocha(project_name).as_bytes())?;
                 }
             }
             Self::Jest => {
@@ -688,11 +693,7 @@ impl TestTemplate {
                 fs::create_dir_all("tests")?;
 
                 let mut test = File::create(format!("tests/{}.test.js", &project_name))?;
-                if solidity {
-                    test.write_all(solidity_template::jest(project_name).as_bytes())?;
-                } else {
-                    test.write_all(jest(project_name).as_bytes())?;
-                }
+                test.write_all(jest(project_name).as_bytes())?;
             }
             Self::Rust => {
                 // Do not initialize git repo
@@ -749,11 +750,15 @@ name = "tests"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
+rust-version = "{msrv}"
 
 [dependencies]
-anchor-client = "{VERSION}"
+anchor-client = "{version}"
 {name} = {{ version = "0.1.0", path = "../programs/{name}" }}
 "#,
+        msrv = ANCHOR_MSRV,
+        version = VERSION,
+        name = name,
     )
 }
 

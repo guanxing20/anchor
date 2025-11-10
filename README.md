@@ -25,7 +25,7 @@
 Anchor is the most popular framework for Solana programs.
 
 > [!NOTE]
-> If you're familiar with developing in Ethereum's [Solidity](https://docs.soliditylang.org/en/), [Truffle](https://www.trufflesuite.com/), [web3.js](https://github.com/ethereum/web3.js), then using Anchor be familiar. Although the DSL syntax and semantics are targeted at Solana, the high level flow of writing RPC request handlers, emitting an IDL, and generating clients from IDL is the same.
+> If you're familiar with developing in Ethereum's [Solidity](https://docs.soliditylang.org/en/), [Truffle](https://www.trufflesuite.com/), [web3.js](https://github.com/ethereum/web3.js), then using Anchor will be familiar. Although the DSL syntax and semantics are targeted at Solana, the high level flow of writing RPC request handlers, emitting an IDL, and generating clients from IDL is the same.
 
 ## Getting Started
 
@@ -41,7 +41,7 @@ To jump straight to examples, go [here](https://github.com/coral-xyz/anchor/tree
 | `anchor-spl`            | CPI clients for SPL programs on Solana                   | [![crates](https://img.shields.io/crates/v/anchor-spl?color=blue)](https://crates.io/crates/anchor-spl)                          | [![Docs.rs](https://docs.rs/anchor-spl/badge.svg)](https://docs.rs/anchor-spl)                                  |
 | `anchor-client`         | Rust client for Anchor programs                          | [![crates](https://img.shields.io/crates/v/anchor-client?color=blue)](https://crates.io/crates/anchor-client)                    | [![Docs.rs](https://docs.rs/anchor-client/badge.svg)](https://docs.rs/anchor-client)                            |
 | `@coral-xyz/anchor`     | TypeScript client for Anchor programs                    | [![npm](https://img.shields.io/npm/v/@coral-xyz/anchor.svg?color=blue)](https://www.npmjs.com/package/@coral-xyz/anchor)         | [![Docs](https://img.shields.io/badge/docs-typedoc-blue)](https://coral-xyz.github.io/anchor/ts/index.html)     |
-| `@coral-xyz/anchor-cli` | CLI to support building and managing an Anchor workspace | [![npm](https://img.shields.io/npm/v/@coral-xyz/anchor-cli.svg?color=blue)](https://www.npmjs.com/package/@coral-xyz/anchor-cli) | [![Docs](https://img.shields.io/badge/docs-typedoc-blue)](https://coral-xyz.github.io/anchor/cli/commands.html) |
+| `@coral-xyz/anchor-cli` | CLI to support building and managing an Anchor workspace | [![npm](https://img.shields.io/npm/v/@coral-xyz/anchor-cli.svg?color=blue)](https://www.npmjs.com/package/@coral-xyz/anchor-cli) | [![Docs](https://img.shields.io/badge/docs-typedoc-blue)](https://www.anchor-lang.com/docs/references/cli) |
 
 ## Note
 

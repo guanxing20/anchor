@@ -126,7 +126,7 @@ pub mod lockup {
         let cpi_ctx = CpiContext::from(&*ctx.accounts).with_signer(signer);
         token::transfer(cpi_ctx, amount)?;
 
-        // Bookeeping.
+        // Bookkeeping.
         let vesting = &mut ctx.accounts.vesting;
         vesting.outstanding -= amount;
 
@@ -154,7 +154,7 @@ pub mod lockup {
             return err!(ErrorCode::WhitelistWithdrawLimit);
         }
 
-        // Bookeeping.
+        // Bookkeeping.
         ctx.accounts.transfer.vesting.whitelist_owned += withdraw_amount;
 
         Ok(())
